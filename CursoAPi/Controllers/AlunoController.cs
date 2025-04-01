@@ -13,7 +13,6 @@ namespace CursoAPi.Controllers
         private readonly CursoContext _context;
         private readonly IMapper _mapper;
 
-        // O CursoContext e o IMapper serão injetados automaticamente
         public AlunoController(CursoContext context, IMapper mapper)
         {
             _context = context;
