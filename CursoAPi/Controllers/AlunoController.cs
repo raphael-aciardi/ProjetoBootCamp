@@ -3,6 +3,7 @@ using CursoAPi.Data;
 using CursoAPi.Data.Dtos.Aluno;
 using CursoAPi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CursoAPi.Controllers
 {
@@ -20,42 +21,67 @@ namespace CursoAPi.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddStudent([FromBody] CreateAlunoDto alunoDto)
+        public async Task<IActionResult> AddStudent([FromBody] CreateAlunoDto alunoDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Aluno aluno = _mapper.Map<Aluno>(alunoDto);
+            try
+            {
+   
+                Aluno aluno = _mapper.Map<Aluno>(alunoDto);
 
-            _context.Alunos.Add(aluno);
-            _context.SaveChanges();
+        
+                await _context.Alunos.AddAsync(aluno);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(AddStudent), aluno);
+                ReadAlunoDto readDto = _mapper.Map<ReadAlunoDto>(aluno);
+
+             
+                return CreatedAtAction(
+                    nameof(GetStudentById),               
+                    new { id = aluno.Id },               
+                    readDto                               
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno no servidor.");
+            }
         }
 
         [HttpGet]
         [Route("RecuperaAlunos")]
-        public ActionResult<IEnumerable<ReadAlunoDto>> GetStudents()
+        public async Task<ActionResult<IEnumerable<ReadAlunoDto>>> GetStudents()
         {
-            var alunos = _context.Alunos.ToList();
 
-            if (alunos == null || alunos.Count == 0)
+            var alunos = await _context.Alunos.AsNoTracking().ToListAsync();
+
+  
+            if (alunos.Count == 0)
                 return NotFound("Nenhum aluno encontrado.");
 
-            return Ok(_mapper.Map<List<ReadAlunoDto>>(alunos));
+            var alunosDto = _mapper.Map<List<ReadAlunoDto>>(alunos);
+
+            return Ok(alunosDto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetStudentsById(int id)
-        {
-            var student = _context.Alunos
-                .FirstOrDefault(student => student.Id == id);
+        public async Task<IActionResult> GetStudentById(int id) 
+        { 
+
+            var student = await _context.Alunos.AsNoTracking()
+                .FirstOrDefaultAsync(student => student.Id == id);
+
             if (student == null)
             {
-                return NotFound();
+
+                return NotFound($"Aluno com ID {id} não encontrado.");
             }
+
             var studentDto = _mapper.Map<ReadAlunoDto>(student);
             return Ok(studentDto);
         }
+
     }
 }
