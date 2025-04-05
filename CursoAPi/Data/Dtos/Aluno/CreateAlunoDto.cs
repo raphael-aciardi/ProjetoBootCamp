@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CursoAPi.Data.Dtos.Aluno;
+﻿namespace CursoAPi.Data.Dtos.Aluno;
 
 public class CreateAlunoDto
 {

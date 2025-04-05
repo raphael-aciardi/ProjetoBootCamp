@@ -23,7 +23,7 @@ namespace CursoAPi.Controllers
         [HttpPost]
         public async Task<IActionResult> AddStudent([FromBody] CreateAlunoDto alunoDto)
         {
-            if (!ModelState.IsValid)
+             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
