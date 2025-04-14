@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Dtos\Curso\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
